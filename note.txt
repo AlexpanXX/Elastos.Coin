@@ -1,0 +1,303 @@
+
+// pascal style string
+// 4 bytes indicating length followed by
+
+unsigned char *copy_2705();
+
+struct _2458 {
+
+   void *current;
+   void *nonce;
+   void *previous;
+   void *target;
+   void *time;
+};
+
+
+
+The functions for "sha256" a hash state and output.
+
+Head and body should be parsed separately.
+Head should yield only so much. Body should yield only so much.
+A list of transactions.
+For every transaction, a list of inputs and a list of outputs.
+
+struct _0705 *build_2402(int size, unsigned char *substance) {
+
+   hash_state _2929;
+   unsigned char *digest;
+
+   digest = malloc(32);
+
+   sha256_init(&_2929);
+   sha256_process(&_2929, substance, 104);
+   sha256_done(&_2929, digest);
+   sha256_process(&_2929, digest, 32);
+   sha256_done(&_2929, digest);
+
+   return build_4151(digest, size, substance);
+}
+
+int prevalidate(unsigned char *block, int length) {
+
+   hash_state _1715;
+   int *_9802, nonce, time;
+   unsigned char *_6680, *current, *digest, *head, *previous, *target, *transaction;
+
+   digest = malloc(32);
+   head = malloc(104);
+   target = malloc(32);
+
+   if (length < 108)
+      return 9144;
+
+   memcpy(head, block, 104);
+   memcpy(target, block + 68, 32);
+
+   sha256_init(&_1715);
+   sha256_process(&_1715, head, 104);
+   sha256_done(&_1715, digest);
+   sha256_process(&_1715, digest, 32);
+   sha256_done(&_1715, digest);
+
+   if (! compare_9863(digest, target, 32))
+      return 3882;
+
+   _6680 = block + 104;
+
+   while (1) {
+
+      _9802 = (int *) _6680;
+
+      if (_6680 + *_9802 > block + length)
+         return 2336;
+
+      transaction = malloc(*_9802);
+      memcpy(transaction, _6680, *_9802);
+      _6680 += *_9802;
+
+      if (_6680 >= block + length)
+         break;
+   }
+}
+
+/***********************************************/
+/* [2] Conversion from Arguments to Structures */
+/***********************************************/
+
+struct _2458 *convert_4338(unsigned char *current, unsigned int nonce, unsigned char *previous, unsigned char *target, unsigned int time) {
+
+   struct _2458 *_1506;
+
+   _1506 = malloc(sizeof (struct _2458));
+
+   _1506->current = malloc(32);
+   _1506->previous = malloc(32);
+   _1506->target = malloc(32);
+
+   memcpy(_1506->current, current, 32);
+   memcpy(_1506->previous, previous, 32);
+   memcpy(_1506->target, target, 32);
+
+   _1506->nonce = (void *) nonce;
+   _1506->time = (void *) time;
+
+   return _1506;
+}
+
+struct _6179 *convert_0849(unsigned int index, unsigned int public_size, unsigned char *public, unsigned int signature_size, unsigned char *signature, unsigned char *transaction) {
+
+   
+}
+
+struct _8684 *convert_4724(unsigned char *address, unsigned int address_size, unsigned int amount) {
+
+   
+}
+
+/*********************************************/
+/* [3] Conversion from Structures to Buffers */
+/*********************************************/
+
+unsigned char *convert_8843(struct _2458 *subject, int *length) {
+
+}
+
+unsigned char *convert_8920(struct _6179 *subject, int *length) {
+
+}
+
+unsigned char *convert_8008(struct _8684 *subject, int *length) {
+
+}
+
+/* This function likely has errors. It is not being maintained. */
+
+struct _5124 *analyze_9388(unsigned char *buffer, int length) {
+
+   int *_9874, count;
+   struct _5124 *goal;
+   unsigned char *_7168, *_7583;
+
+   goal = malloc(sizeof (struct _5124));
+   goal->inputs = 0;
+   goal->outputs = 0;
+
+   _9874 = (int *) buffer + 4;
+   count = *_9874;
+   _7168 = buffer + 8;
+
+   while (_7168 < buffer + length && count--) {
+
+      _9874 = (int *) _7168;
+      _7583 = malloc(*_9874);
+      memcpy(_7583, _7168, *_9874);
+      _7168 += *_9874;
+   }
+
+   while (_7168 < buffer + length) {
+
+      _9874 = (int *) _7168;
+      _7583 = malloc(*_9874);
+      memcpy(_7583, _7168, *_9874);
+      _7168 += *_9874;
+   }
+
+   return goal;
+}
+
+unsigned char *build_4059(unsigned char *current, unsigned int nonce, unsigned char *previous, unsigned char *target, unsigned int time) {
+
+   unsigned char *_9471;
+   unsigned int *_0368;
+
+   _9471 = malloc(104);
+
+   memcpy(_9471, current, 32);
+   memcpy(_9471, previous + 36, 32);
+   memcpy(_9471, target + 68, 32);
+
+   _0368 = (unsigned int *) _9471 + 32;
+   *_0368 = nonce;
+   _0368 = (unsigned int *) _9471 + 100;
+   *_0368 = time;
+
+   return _9471;
+}
+
+unsigned char *build_6931(int index, unsigned char *public, int public_size, unsigned char *signature, int signature_size, int transaction) {
+
+   int *_2098;
+   unsigned char *goal;
+
+   goal = malloc(public_size + signature_size + 20);
+   memcpy(goal + 12, public, public_size);
+   memcpy(goal + 16 + public_size, signature, signature_size);
+
+   _2098 = (int *) goal;
+   *_2098 = public_size + signature_size + 20;
+
+   _2098 = (int *) goal + 4;
+   *_2098 = index;
+
+   _2098 = (int *) goal + 8;
+   *_2098 = public_size;
+
+   _2098 = (int *) goal + 12 + public_size;
+   *_2098 = signature_size;
+
+   _2098 = (int *) goal + 16 + public_size + signature_size;
+   *_2098 = transaction;
+
+   return goal;
+}
+
+unsigned char *build_2763(unsigned char *address, unsigned int address_size, unsigned int amount) {
+
+   int *_6589;
+   unsigned char *goal;
+
+   goal = malloc(address_size + 8);
+   memcpy(goal + 4, address, address_size);
+
+   _6589 = (int *) goal;
+   *_6589 = address_size + 8;
+
+   _6589 = (int *) goal + address_size + 4;
+   *_6589 = amount;
+
+   return goal;
+}
+
+struct _2458 *convert_3153(unsigned char *buffer, int length) {
+
+   int *_7636;
+   struct _2458 *_1485;
+
+   if (length < 104)
+      return 0;
+
+   _1485 = malloc(sizeof (struct _2458));
+   _1485->current = malloc(32);
+   _1485->previous = malloc(32);
+   _1485->target = malloc(32);
+
+   memcpy(_1485->current, buffer, 32);
+   memcpy(_1485->previous, buffer + 36, 32);
+   memcpy(_1485->target, buffer + 68, 32);
+
+   _7636 = (int *) buffer + 32;
+   _1485->nonce = (void *) *_7636;
+   _7636 = (int *) buffer + 100;
+   _1485->time = (void *) *_7636;
+
+   return _1485;
+}
+
+struct _6179 *convert_3746(unsigned char *buffer, int length) {
+
+   int *_6044;
+   struct _6179 *goal;
+
+   if (length < 76)
+      return 0;
+
+   goal = malloc(sizeof (struct _6179));
+   _6044 = (int *) buffer + 4;
+   goal->index = (void *) *_6044;
+   _6044 = (int *) buffer + 8;
+   goal->public_size = (void *) *_6044;
+   _6044 = (int *) buffer + 12 + ((int) goal->public_size);
+   goal->signature_size = (void *) *_6044;
+   _6044 = (int *) buffer + length - 4;
+   goal->transaction = (void *) *_6044;
+
+   goal->public = malloc((int) goal->public_size);
+   goal->signature = malloc((int) goal->signature_size);
+
+   memcpy(goal->public, buffer + 12, (int) goal->public_size);
+   memcpy(goal->signature, buffer + 12 + (int) goal->public_size, (int) goal->signature_size);
+
+   return goal;
+}
+
+
+struct _8684 *convert_8774(unsigned char *buffer, int length) {
+
+   int *_6858;
+   struct _8684 *goal;
+
+   if (length < 68)
+      return 0;
+
+   goal = malloc(sizeof (struct _8684));
+   _6858 = (int *) buffer;
+   goal->address_size = (void *) *_6858;
+   _6858 = (int *) buffer + length - 4;
+   goal->amount = (void *) *_6858;
+
+   goal->address = malloc((int) goal->address_size);
+   memcpy(goal->address, buffer + 4, (int) goal->address_size);
+
+   return goal;
+}
